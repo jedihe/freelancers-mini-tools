@@ -1,0 +1,29 @@
+{
+  "projects": {
+    "my_project": {
+      "repository": "git@github.com:my_user/my_project.git",
+      "repository__help": "git@ (SSH) scheme is typically used for private repos and requires setting up SSH keys to authenticate; for a public repo, just use https:// scheme.",
+      "envs": {
+        "dev": {
+          "basedir" : "/some/dir/for/dev-sites/my_project",
+          "basedir__help": "Absolute path for the directory that will hold this environment, the repository will be cloned into $basedir/repo.",
+          "linkname": "public_html",
+          "linkname__help": "Name of symlink to place under $basedir, symlink will point to $basedir/deploys/SOME-TAG.",
+          "webroot": "src/web",
+          "webroot__help": "Subdir under the repo root where index.php is located, *do not* use leading/trailing /. You must point the web-visible (sub)domain to this (as absolute path, i.e. $basedir/$linkname/$webroot).",
+          "deploys-history": 2,
+          "deploys-history__help": "(Optional) number of most-recent deploys to preserve (including the latest, active one). Must be at least 2, defaults to 2.",
+          "basic-auth": "my_user:my_pass",
+          "basic-auth__help": "(Optional) credentials to set up basic-auth (apache auth) for deploys on this environment. Only alphanumeric characters are allowed for user or pass values. Requires htpasswd to be available in the server and .htaccess to be right under $webroot subdir (from repo root)."
+        },
+        "live": {
+          "basedir" : "/some/dir/for/live-sites/my_project",
+          "linkname": "public_html",
+          "webroot": "src/web",
+          "deploys-history": 3,
+          "basic-auth": "user:password"
+        }
+      }
+    }
+  }
+}
