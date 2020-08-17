@@ -81,6 +81,10 @@ BOX_JSON=$(cat <<-SNIPPET
             "in": "vendor"
         }
     ],
+    "compactors": [
+        "Herrera\\\\Box\\\\Compactor\\\\Json",
+        "Herrera\\\\Box\\\\Compactor\\\\Php"
+    ],
     "main": "vendor/drush/drush/drush.php",
     "output": "drush-$DRUSH_VERSION.phar",
     "stub": true
