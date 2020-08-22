@@ -97,6 +97,8 @@ Next steps:
 * Add $PROJECT/fmt-deploy-custom.sh, customize as needed and make it executable.
 * Import DB dump into DB for the site.
 * Upload user-generated files to $PROJECT/app-files/ dir.
+* Add empty file at $PROJECT/fmt-deploy-ALLOW; this file must be created before
+  running $0, *everytime*.
 * Run (remove leading #):
 # $0 $PROJECT $TAG
 
