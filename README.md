@@ -57,6 +57,31 @@ before committing code into the git repo.
 Before using each script, make sure to read the usage instructions and
 script-specific requirements embedded in it.
 
+# Troubleshooting
+
+Most shared hostings heavily limit the resources, which may cause various types
+of errors.
+
+For an error like 'fatal: unable to create threaded lstat: Resource temporarily
+unavailable', you may try connecting (SSH) to the server and running:
+
+```
+git config --global core.preloadIndex false
+```
+
+If the error persists, try with these:
+
+```
+git config --global pack.threads "1"
+git config --global pack.windowMemory "100m"
+git config --global pack.packSizeLimit "100m"
+```
+
+For details, see:
+
+- https://stackoverflow.com/a/33805069/6072846
+- https://forums.cpanel.net/threads/unable-to-create-threaded-lstat.642257/
+
 # TODO
 
 - Provide some tutorial (written, video), showing how the various tools can be
