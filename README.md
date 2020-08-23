@@ -17,7 +17,7 @@ improvements) rather than the seemingly low-impact (deploys, maintenance, etc).
 This difficulty got me asking: is there a way to minimize the time spent on the
 non-coding work while still doing it effectively?
 
-The answer I came up with was to use some automation; but not the kind of
+The answer I came up with is to use some automation; but not the kind of
 super-expensive, hard-to-maintain automation you normally see in medium to
 high-budget projects; instead, a very-simple-yet-effective approach that should
 target the hardest and most time-consuming parts. Freelancers' Mini-Tools is an
@@ -55,7 +55,7 @@ commit for later deploying with deploy/fmt-deploy.sh. For drupal8, a couple
 before committing code into the git repo.
 
 Before using each script, make sure to read the usage instructions and
-script-specific requirements embedded in it.
+script-specific requirements included at the top (usually as a comment).
 
 # Troubleshooting
 
