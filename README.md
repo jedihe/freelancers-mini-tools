@@ -3,6 +3,11 @@
 Mini-tools for empowering freelancers working in very constrained contexts
 (shared hosting, etc).
 
+In short: set of tools (bash scripts) providing simple-yet-powerful automation
+to make on-going maintenance for Drupal websites quick and error-free, all this
+while being able to leverage cheap (shared) hosting to keep infrastructure
+costs very low.
+
 Freelancers' Mini-Tools (fmt) is my humble attempt at bringing some of the
 niceties of automation that are out of reach for low-budget projects in a form
 that is simple enough to be used by freelancers or very small teams. The goal
@@ -82,7 +87,13 @@ For details, see:
 - https://stackoverflow.com/a/33805069/6072846
 - https://forums.cpanel.net/threads/unable-to-create-threaded-lstat.642257/
 
+# Reference Material
+
+- https://www.bounteous.com/insights/2020/03/11/automate-drupal-deployments/
+
 # TODO
 
 - Provide some tutorial (written, video), showing how the various tools can be
   used for a Drupal 8 project.
+- Review https://violinist.io/, check how easy/convenient it would be to add
+  FMT support for it. Note: free plan allows for unlimited *public* repos.
