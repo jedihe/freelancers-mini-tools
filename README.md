@@ -90,6 +90,9 @@ For details, see:
 # Reference Material
 
 - https://www.bounteous.com/insights/2020/03/11/automate-drupal-deployments/
+- https://youtu.be/S9GLT4ssj2Q?t=155 (the whole explanation about CMI + how 
+  to manage code vs. files vs. DB). The "Pantheon workflow" seems to be a good
+  "blueprint" to follow in order to use fmt-deploy.sh effectively.
 
 # TODO
 
