@@ -93,11 +93,11 @@ function initialize() {
   cat <<-HELP
 Next steps:
 ===========
-* Add secrets-only files under $PROJECT/secrets/ dir.
+* Add secrets-only files under $BASE_DIR/secrets/ dir.
 * Add $PROJECT/fmt-deploy-custom.sh, customize as needed and make it executable.
 * Import DB dump into DB for the site.
-* Upload user-generated files to $PROJECT/app-files/ dir.
-* Add empty file at $PROJECT/fmt-deploy-ALLOW; this file must be created before
+* Upload user-generated files to $BASE_DIR/app-files/ dir.
+* Add empty file at $BASE_DIR/fmt-deploy-ALLOW; this file must be created before
   running $0, *everytime*.
 * Run (remove leading #):
 # $0 $PROJECT $TAG
