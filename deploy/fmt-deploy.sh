@@ -238,7 +238,8 @@ function deploy_tag() {
 
   # Successful deploy, create archive for it.
   cd $_DEPLOYS_DIR
-  tar -zcvf $_TAG.tar.gz $_TAG
+  banner "Creating archive for tag $_TAG..." $H3
+  tar -zcf $_TAG.tar.gz $_TAG
   cd -
 
   if [ -e $_LINK_PATH ]; then
