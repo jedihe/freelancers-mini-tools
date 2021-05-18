@@ -6,6 +6,11 @@ gittag () {
   git tag -a $1 -m "Tagging version $1"
 }
 
+fmt_deploy () {
+  touch $PWD/dev-sites/my_project/fmt-deploy-ALLOW
+  ./fmt-deploy.sh $@
+}
+
 [ -d src-repo ] && chmod -R u+w src-repo/{.git,*} && rm -r src-repo
 [ -d dev-sites ] && chmod -R u+w dev-sites/* && rm -r dev-sites
 [ -e fmt-deploy.config.json ] && rm fmt-deploy.config.json
@@ -70,17 +75,13 @@ SNIPPET
 echo "$FMT_DEPLOY_JSON" > fmt-deploy.config.json
 
 # Initialize
-touch $PWD/dev-sites/my_project/fmt-deploy-ALLOW
-./fmt-deploy.sh my_project dev.1
+fmt_deploy my_project dev.1
 
 # Deploy dev.1
-touch $PWD/dev-sites/my_project/fmt-deploy-ALLOW
-./fmt-deploy.sh my_project dev.1
+fmt_deploy my_project dev.1
 
 # Deploy dev.2
-touch $PWD/dev-sites/my_project/fmt-deploy-ALLOW
-./fmt-deploy.sh my_project dev.2
+fmt_deploy my_project dev.2
 
 # Deploy dev.3
-touch $PWD/dev-sites/my_project/fmt-deploy-ALLOW
-./fmt-deploy.sh my_project dev.3
+fmt_deploy my_project dev.3
