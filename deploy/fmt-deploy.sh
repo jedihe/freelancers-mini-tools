@@ -117,17 +117,25 @@ function purge_old_deploys() {
   local _TARGET_ENV=${TAG%.*}
   local _PREFIX=${1:-$_TARGET_ENV}
   local _THRESHOLD=${2:-2}
-  # WARNING: ensure that at least 2 deploys are preserved! (current/last +
-  # the previous one)
-  [ $_THRESHOLD -lt 2 ] && _THRESHOLD=2
+  # Remove the directories for *all* previous deploys. Previous deploys may
+  # only be preserved as archives (see below).
   # For "ls -d */" construct, see https://stackoverflow.com/a/14352330/6072846
-  local _OLD_DEPLOYS=$(ls -1 -d $DEPLOYS_DIR/*/ | grep "deploys/$_PREFIX" | sort --version-sort | head -n -"$_THRESHOLD")
+  local _OLD_DEPLOYS=$(ls -1 -d $DEPLOYS_DIR/*/ | grep "deploys/$_PREFIX" | sort --version-sort | head -n -1)
   # Had to count line-starts (grep -c "^"), since wc -l counts new-line chars!
   local _NUM_OLD_DEPLOYS=$(echo -n "${_OLD_DEPLOYS}" | grep -c "^")
   if [ ${_NUM_OLD_DEPLOYS} -gt 0 ]; then
     banner "Purging ${_NUM_OLD_DEPLOYS} deploys for prefix $_PREFIX..." $H2
     __safe_purge_dirs  ${_OLD_DEPLOYS}
   fi
+
+  # WARNING: ensure that at least 2 deploy archives are preserved!
+  # (current/last + the previous one)
+  [ $_THRESHOLD -lt 2 ] && _THRESHOLD=2
+  local _OLD_DEPLOYS_ARCHIVES=$(ls -1 $DEPLOYS_DIR/*.tar.gz | grep "deploys/$_PREFIX" | sort --version-sort | head -n -"$_THRESHOLD")
+  local _ARCHIVE
+  for _ARCHIVE in $_OLD_DEPLOYS_ARCHIVES; do
+    rm $_ARCHIVE
+  done
 }
 
 function __safe_purge_dirs() {
@@ -227,6 +235,11 @@ function deploy_tag() {
     sleep 2
     exit 1
   fi
+
+  # Successful deploy, create archive for it.
+  cd $_DEPLOYS_DIR
+  tar -zcvf $_TAG.tar.gz $_TAG
+  cd -
 
   if [ -e $_LINK_PATH ]; then
     # If removing, also do ln right away, to prevent the webserver from
