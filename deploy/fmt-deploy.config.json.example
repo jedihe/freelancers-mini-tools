@@ -12,7 +12,7 @@
           "webroot": "src/web",
           "webroot__help": "Subdir under the repo root where index.php is located, *do not* use leading/trailing /. You must point the web-visible (sub)domain to this (as absolute path, i.e. $basedir/$linkname/$webroot).",
           "deploys-history": 2,
-          "deploys-history__help": "(Optional) number of most-recent deploys to preserve (including the latest, active one). Must be at least 2, defaults to 2.",
+          "deploys-history__help": "(Optional) number of most-recent archives for deployed tags to preserve (including the archive for the latest, active deploy). Must be at least 2, defaults to 2.",
           "basic-auth": "my_user:my_pass",
           "basic-auth__help": "(Optional) credentials to set up basic-auth (apache auth) for deploys on this environment. Only alphanumeric characters are allowed for user or pass values. Requires htpasswd to be available in the server and .htaccess to be right under $webroot subdir (from repo root)."
         },
