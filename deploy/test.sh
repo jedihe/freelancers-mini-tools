@@ -7,8 +7,13 @@ gittag () {
 }
 
 [ -d src-repo ] && chmod -R u+w src-repo/{.git,*} && rm -r src-repo
+[ -d dev-sites ] && chmod -R u+w dev-sites/* && rm -r dev-sites
+[ -e fmt-deploy.config.json ] && rm fmt-deploy.config.json
 
-[ -d dev-sites ] && chmod -R u+w dev-sites/{.git,*} && rm -r dev-sites
+if [[ "$1" == "--clean" ]]; then
+  # Invoked only for cleaning, exit now.
+  exit 0
+fi
 
 mkdir src-repo
 cd src-repo
@@ -52,7 +57,7 @@ FMT_DEPLOY_JSON=$(cat <<-SNIPPET
           "basedir" : "$PWD/dev-sites/my_project",
           "linkname": "public_html",
           "webroot": ".",
-          "deploys-history": 3,
+          "deploys-history": 2,
           "basic-auth": "my_user:my_pass"
         }
       }
