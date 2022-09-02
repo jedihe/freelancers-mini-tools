@@ -17,6 +17,8 @@
 # - The script is called from a parent dir of the drupal-root.
 # - DRUSH-VERSION is compatible with the Drupal core version.
 #
+# Version: 0.1.1
+#
 # TODO:
 # - Analyze if it's feasible to rm directories from vendor for which the site's
 #   vendor dir should already have a compatible version. E.g. twig/twig.
@@ -48,20 +50,26 @@ DRUSH_BUILD_DIR="$WORK_DIR/build-$DRUSH_VERSION"
 mkdir -p $DRUSH_BUILD_DIR
 cd $DRUSH_BUILD_DIR
 
-CORE_COMPOSER_JSON=$(readlink -f $(find $START_DIR -name composer.json | sort | grep "core/composer.json" -))
-CORE_REQUIRED_PACKAGES=$(cat $CORE_COMPOSER_JSON | \
+SITE_COMPOSER_JSON=$(readlink -f $(find $START_DIR -name composer.json | sort | head -n1 | grep "composer.json" -))
+SITE_REQUIRED_PACKAGES=$(cat $SITE_COMPOSER_JSON | \
   jq -r '.["require"] | to_entries | map (.key + ":" + .value) | join("\n")' - | \
+  `# Remove spaces to support constraints like ^1.0 || ^2.0. WARNING: this comment requires backticks!` \
+  tr -d " " | \
   grep -v -E "(ext-|php)" | \
   sort)
-CORE_REQUIRED_PACKAGES_NAMES=$(echo "$CORE_REQUIRED_PACKAGES" | cut -d: -f-1)
+SITE_REQUIRED_PACKAGES_NAMES=$(echo "$SITE_REQUIRED_PACKAGES" | cut -d: -f-1)
 
 # Try to ensure compatibility with the site by performing the build with the
-# same constraints as the site's Drupal core.
-ls composer.lock || composer require drush/drush:$DRUSH_VERSION $CORE_REQUIRED_PACKAGES --prefer-dist
+# same constraints as the site's composer.json.
+ls composer.lock || \
+  (composer init --name=fmt/drush-phar-build -n && \
+  composer config repositories.drupal composer https://packages.drupal.org/8 && \
+  composer require drush/drush:$DRUSH_VERSION $SITE_REQUIRED_PACKAGES --prefer-dist) || \
+  { echo "ERR: composer require failed, check that drush $DRUSH_VERSION is compatible with $SITE_COMPOSER_JSON."; exit 1; }
 
 # Remove build-only dependencies, which would only bloat the final .phar.
 BUILD_ONLY_DEPENDENCIES=""
-for DEP in $CORE_REQUIRED_PACKAGES_NAMES; do
+for DEP in $SITE_REQUIRED_PACKAGES_NAMES; do
   IS_REQUIRED_BY_DRUSH=$(composer why --recursive $DEP | grep "^drush/drush" -)
   if [[ "$IS_REQUIRED_BY_DRUSH" == "" ]]; then
     BUILD_ONLY_DEPENDENCIES="$BUILD_ONLY_DEPENDENCIES $DEP"
@@ -88,7 +96,10 @@ BOX_JSON=$(cat <<-SNIPPET
 SNIPPET
 )
 echo "$BOX_JSON" > $DRUSH_BUILD_DIR/box.json
+
+echo "Starting phar build for drush $DRUSH_VERSION..."
 time php -d phar.readonly="Off" ../box.phar build
+echo "Build finished."
 
 echo "Built phar for Drush $DRUSH_VERSION at:"
 echo "$DRUSH_BUILD_DIR/drush-$DRUSH_VERSION.phar"
