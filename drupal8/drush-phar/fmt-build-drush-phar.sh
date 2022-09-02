@@ -17,7 +17,7 @@
 # - The script is called from a parent dir of the drupal-root.
 # - DRUSH-VERSION is compatible with the Drupal core version.
 #
-# Version: 0.1.1
+# Version: 0.1.2
 #
 # TODO:
 # - Analyze if it's feasible to rm directories from vendor for which the site's
@@ -38,7 +38,7 @@ cd $WORK_DIR
 # preferred to do a direct download, check the releases page in github:
 # https://github.com/box-project/box2/releases
 if [ ! -e $BOX_PHAR ]; then
-  curl -LSs https://box-project.github.io/box2/installer.php | php
+  curl -LSs https://github.com/box-project/box/releases/download/3.16.0/box.phar -o box.phar
   chmod +x $BOX_PHAR
 else
   php $BOX_PHAR update
@@ -77,29 +77,22 @@ for DEP in $SITE_REQUIRED_PACKAGES_NAMES; do
 done
 composer remove $BUILD_ONLY_DEPENDENCIES
 
+DRUSH_FINAL_VERSION=$(cat $DRUSH_BUILD_DIR/composer.lock | jq -r '.packages | map(select(.name == "drush/drush")) | .[].version')
+
 BOX_JSON=$(cat <<-SNIPPET
 {
-    "alias": "drush-$DRUSH_VERSION.phar",
-    "chmod": "0755",
-    "directories": ["vendor"],
-    "finder": [
-        {
-            "name": "*.php",
-            "exclude": ["Tests"],
-            "in": "vendor"
-        }
+    "alias": "drush-$DRUSH_FINAL_VERSION.phar",
+    "compactors": [
+        "KevinGH\\\\Box\\\\Compactor\\\\Json"
     ],
     "main": "vendor/drush/drush/drush.php",
-    "output": "drush-$DRUSH_VERSION.phar",
-    "stub": true
+    "output": "drush-$DRUSH_FINAL_VERSION.phar"
 }
 SNIPPET
 )
 echo "$BOX_JSON" > $DRUSH_BUILD_DIR/box.json
 
-echo "Starting phar build for drush $DRUSH_VERSION..."
 time php -d phar.readonly="Off" ../box.phar build
-echo "Build finished."
 
 echo "Built phar for Drush $DRUSH_VERSION at:"
-echo "$DRUSH_BUILD_DIR/drush-$DRUSH_VERSION.phar"
+echo "$DRUSH_BUILD_DIR/drush-$DRUSH_FINAL_VERSION.phar"
