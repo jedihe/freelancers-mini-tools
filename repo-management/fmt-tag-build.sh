@@ -13,6 +13,8 @@
 #
 # If not provided, 'target_env' defaults to 'dev'.
 #
+# Version: 0.1.1
+#
 # ==============================================================================
 #
 # TODO:
@@ -24,9 +26,9 @@
 TARGET_ENV=${1:-dev}
 CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Only allow tagging on master branch.
-[ "$CUR_BRANCH" != "master"  ] &&
-  echo "Error: tagging is only allowed on the master branch. You should merge your current work first, then try again." &&
+# Only allow tagging on master or main branch.
+[ "$CUR_BRANCH" !~ "master|main"  ] &&
+  echo "ERROR: tagging is only allowed on branches: master, main. You should merge your current work first, then try again." &&
   exit 1
 
 LAST_TAG=$(git tag --list "$TARGET_ENV.*" | sort --version-sort | tail -n1)
