@@ -16,11 +16,13 @@
 # Part of freelancer-mini-tools v0.1
 #
 # Usage:
-# /path/to/fmt-prune-drupal-code.sh
+# /path/to/fmt-prune-drupal-code.sh path/to/web
+#
+# Version: 0.1.1
 #
 # Assuming:
-# - This script is invoked from the directory where ./src/web/core/composer.json
-#   resolves.
+# - This script is invoked from a directory where both core.extension.yml and
+#   index.php can be found in some subdirectory.
 #
 # To compare before/after, you can run:
 #
@@ -29,6 +31,17 @@
 # To get a count of the inodes for current dir + subdirs.
 
 set -x
+
+WEB_DIR=$(dirname $(readlink -f $(find . -name index.php) | grep -vE "scaffold|tests|vendor"))
+[ -z "$WEB_DIR" ] && \
+  echo "ERROR: can not find the main index.php. Switch to a dir that is parent to both core.extension.yml and index.php and retry." && \
+  exit 1
+
+# Find exported core.extension.yml which is *not* from core itself.
+CORE_EXTENSION_YML=$(find . -name core.extension.yml | grep -v "core/config/install")
+[ -z "$CORE_EXTENSION_YML" ] && \
+  echo "ERROR: can not find core.extension.yml; did you export the configuration?" && \
+  exit 1
 
 function prune_extensions() {
   _EXTENSION_LIST="$1"
@@ -74,31 +87,25 @@ function find_unused() {
 }
 
 # Start by pruning tests
-[ -d src/web/core/tests ] && \
-  prune_dirs src/web/core/tests
+[ -d $WEB_DIR/core/tests ] && \
+  prune_dirs $WEB_DIR/core/tests
 
-CORE_MODULES_TESTS_DIRS=$(find src/web/core/modules -type d -name tests)
+CORE_MODULES_TESTS_DIRS=$(find $WEB_DIR/core/modules -type d -name tests)
 prune_dirs "$CORE_MODULES_TESTS_DIRS"
 
-SYMFONY_TESTS_DIRS=$(find src/vendor/symfony -type d -name Tests)
+SYMFONY_TESTS_DIRS=$(find ./vendor/symfony -type d -name Tests)
 prune_dirs "$SYMFONY_TESTS_DIRS"
 
 # Prune Umami demo profile.
-[ -d src/web/core/profiles/demo_umami ] && \
-  prune_dirs src/web/core/profiles/demo_umami
+[ -d $WEB_DIR/core/profiles/demo_umami ] && \
+  prune_dirs $WEB_DIR/core/profiles/demo_umami
 
-# Find exported core.extension.yml which is *not* from core itself.
-CORE_EXTENSION_YML=$(find . -name core.extension.yml | grep -v "core/config/install")
-[ -z "$CORE_EXTENSION_YML" ] && \
-  echo "Can not find core.extension.yml; did you export the configuration?" && \
-  exit 1
+UNUSED_CORE_MODULES=$(find_unused $CORE_EXTENSION_YML $WEB_DIR/core/modules)
+prune_extensions "$UNUSED_CORE_MODULES" $WEB_DIR/core/modules
 
-UNUSED_CORE_MODULES=$(find_unused $CORE_EXTENSION_YML src/web/core/modules)
-prune_extensions "$UNUSED_CORE_MODULES" src/web/core/modules
-
-UNUSED_CORE_THEMES=$(find_unused $CORE_EXTENSION_YML src/web/core/themes)
+UNUSED_CORE_THEMES=$(find_unused $CORE_EXTENSION_YML $WEB_DIR/core/themes)
 UNUSED_CORE_THEMES=$(grep -vF "twig" <(echo "$UNUSED_CORE_THEMES"))
-prune_extensions "$UNUSED_CORE_THEMES" src/web/core/themes
+prune_extensions "$UNUSED_CORE_THEMES" $WEB_DIR/core/themes
 
-UNUSED_CONTRIB_MODULES=$(find_unused $CORE_EXTENSION_YML src/web/modules)
-prune_extensions "$UNUSED_CONTRIB_MODULES" src/web/modules
+UNUSED_CONTRIB_MODULES=$(find_unused $CORE_EXTENSION_YML $WEB_DIR/modules/contrib)
+prune_extensions "$UNUSED_CONTRIB_MODULES" $WEB_DIR/modules/contrib
