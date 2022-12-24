@@ -184,7 +184,13 @@ mkdir -p $DEPLOYS_DIR ||
 
 # Log all the output to a file
 # See https://stackoverflow.com/a/8703001/6072846
-exec > >(tee -a $DEPLOYS_DIR/deploy-log.txt) 2>&1
+# Process substitution is not available everywhere; replace with a nested
+# invocation + FMT_LOGGING env var.
+#exec > >(tee -a $DEPLOYS_DIR/deploy-log.txt) 2>&1
+if [[ -z $FMT_LOGGING ]]; then
+  FMT_LOGGING="1" $0 "$@" 2>&1 | tee -a $DEPLOYS_DIR/deploy-log.txt
+  exit $?
+fi
 
 # No-op assignments, so that the log capture gets to record the values.
 JSON_CONFIG="$JSON_CONFIG"
@@ -271,12 +277,15 @@ function set_up_basic_auth() {
 
   if [[ $_BASIC_AUTH =~ [a-zA-Z0-9]+:[a-zA-Z0-9]+ ]]; then
     # Snippet taken from https://stackoverflow.com/a/677212/6072846
-    if command -v htpasswd; then
+    if command -v openssl; then
       local _USER=${_BASIC_AUTH%:*}
       local _PASS=${_BASIC_AUTH#*:}
       # Command found in https://blog.sleeplessbeastie.eu/2020/02/26/how-to-generate-password-digest-for-basic-authentication-of-http-users/
-      local _BASIC_AUTH=$(echo "${_PASS}" | htpasswd -i -n "${_USER}")
-      echo $_BASIC_AUTH > $BASE_DIR/secrets/htpasswd
+      #local _BASIC_AUTH=$(echo "${_PASS}" | htpasswd -i -n "${_USER}")
+      #echo $_BASIC_AUTH > $BASE_DIR/secrets/htpasswd
+      # Simpler (?) approach for when htpasswd is not available; taken from
+      # https://coderwall.com/p/zvvgna/create-htpasswd-file-for-nginx-without-apache
+      printf "$_USER:$(openssl passwd -crypt $_PASS)\n" > $BASE_DIR/secrets/htpasswd
 
       local _BASIC_AUTH_SNIPPET=$(cat <<-SNIPPET
 # Begin: Automatically added by fmt-deploy.
