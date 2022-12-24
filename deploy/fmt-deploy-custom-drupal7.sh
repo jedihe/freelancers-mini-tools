@@ -3,6 +3,9 @@
 # WARNING: do not remove!!!
 set -ex
 
+# Overrides: uncomment and set var value
+#GROUP=
+
 # OPTIONAL: enable and point to the right php version
 #export PATH="/opt/cpanel/ea-php73/root/usr/bin:$PATH"
 php -v
@@ -48,7 +51,7 @@ fi
 echo "Setting ownership/permissions"
 OWNER=$(whoami)
 cd $APP_ROOT
-chown -R $OWNER:$OWNER .
+chown -R $OWNER:${GROUP:-$OWNER} .
 find . -type d -exec chmod u=rwx,g=rx,o=rx '{}' \;
 find . -type f -exec chmod u=rw,g=r,o=r '{}' \;
 
