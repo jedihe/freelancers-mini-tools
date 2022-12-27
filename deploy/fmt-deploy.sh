@@ -251,9 +251,9 @@ function deploy_tag() {
   if [ -e $_LINK_PATH ]; then
     # If removing, also do ln right away, to prevent the webserver from
     # auto-creating the dir.
-    rm -f $LINK_PATH && ln -s $_DEPLOYS_DIR/$_TAG $_LINK_PATH
+    rm -f $LINK_PATH && ln -s $_DEPLOYS_DIR/$_TAG/$WEBROOT $_LINK_PATH
   else
-    ln -s $_DEPLOYS_DIR/$_TAG $_LINK_PATH
+    ln -s $_DEPLOYS_DIR/$_TAG/$WEBROOT $_LINK_PATH
   fi
 
   local _CUR_COMMIT=$(git --git-dir=$_REPO_SRC/.git rev-list -1 $_TAG)
@@ -303,6 +303,7 @@ SNIPPET
       echo "Prepending Basic Auth directive to .htaccess"
       echo -e "$_BASIC_AUTH_SNIPPET\n$(cat $_HTACCESS_PATH)" > $_HTACCESS_PATH
       set -x
+      return 0
     else
       banner "Error: missing htpasswd, skipping basic-auth setup." $H3
       return 1
